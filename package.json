@@ -16,10 +16,10 @@
   "license": "ISC",
   "dependencies": {
     "@logseq/libs": "0.0.6",
-    "axios": "^0.25.0",
+    "axios": "^0.28.0",
     "logseq-dateutils": "latest",
-    "moment": "^2.29.3",
-    "moment-timezone": "^0.5.34",
+    "moment": "^2.29.4",
+    "moment-timezone": "^0.5.35",
     "node-ical": "^0.14.1",
     "re2": "^1.17.7",
     "tailwind": "^4.0.0",
