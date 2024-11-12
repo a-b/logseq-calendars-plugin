@@ -15,5 +15,12 @@ module.exports = {
         }
       }
     ]
-  }
+  },
+  cacheDirectory: '.jest-cache',
+  maxWorkers: process.env.CI ? 2 : '50%',
+  collectCoverage: process.env.CI === 'true',
+  coverageDirectory: 'coverage',
+  coverageReporters: ['text', 'lcov'],
+  testTimeout: 10000,
+  verbose: true
 };

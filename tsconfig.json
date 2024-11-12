@@ -7,24 +7,27 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "outDir": "./dist",
+    "outDir": "dist",
     "rootDir": ".",
     "moduleResolution": "node",
     "resolveJsonModule": true,
     "baseUrl": ".",
     "typeRoots": [
-      "./node_modules/@types",
-      "./"
-    ]
+      "./node_modules/@types"
+    ],
+    "declaration": true,
+    "sourceMap": true
   },
   "include": [
-    "src/**/*",
-    "test/**/*",
+    "src/**/*.ts",
+    "test/**/*.ts",
     "index.ts",
     "types.d.ts"
   ],
   "exclude": [
     "node_modules",
-    "dist"
+    "dist",
+    "coverage",
+    ".jest-cache"
   ]
 }

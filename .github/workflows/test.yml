@@ -6,9 +6,15 @@ on:
   pull_request:
     branches: [ main, master ]
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   test:
     runs-on: ubuntu-latest
+    timeout-minutes: 10 
+    
     steps:
       - uses: actions/checkout@v4
       
@@ -17,9 +23,20 @@ jobs:
         with:
           node-version: '20.5.1'
           cache: 'yarn'
-          
+          cache-dependency-path: yarn.lock
+ 
+      - name: Cache Jest
+        uses: actions/cache@v3
+        with:
+          path: .jest-cache
+          key: ${{ runner.os }}-jest-${{ hashFiles('yarn.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-jest-
+            
       - name: Install dependencies
         run: yarn install --frozen-lockfile
         
       - name: Run tests
+        env:
+          JEST_CACHE_DIRECTORY: .jest-cache
         run: yarn test
