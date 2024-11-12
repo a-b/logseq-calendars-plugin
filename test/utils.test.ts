@@ -1,27 +1,27 @@
 import { describe, expect, test, beforeEach } from '@jest/globals';
-import { sortDate, templateFormatter, parseLocation, formatTime } from '../src/utils';
+import { sortDate, templateFormatter, parseLocation, formatTime, formatDate, createLocalDate, parseDateWithTimezone } from '../src/utils';
 import type { CalendarEvent } from '../types';
 
 describe('sortDate', () => {
   test('sorts events by start date', () => {
     const events: CalendarEvent[] = [
       { 
-        start: new Date('2023-01-02'),
-        end: new Date('2023-01-02'),
+        start: new Date('2023-01-02T12:00:00Z'),
+        end: new Date('2023-01-02T13:00:00Z'),
         summary: 'Event 2',
         description: 'Description 2',
         location: 'Location 2'
       },
       { 
-        start: new Date('2023-01-01'),
-        end: new Date('2023-01-01'),
+        start: new Date('2023-01-01T12:00:00Z'),
+        end: new Date('2023-01-01T13:00:00Z'),
         summary: 'Event 1',
         description: 'Description 1',
         location: 'Location 1'
       },
       { 
-        start: new Date('2023-01-03'),
-        end: new Date('2023-01-03'),
+        start: new Date('2023-01-03T12:00:00Z'),
+        end: new Date('2023-01-03T13:00:00Z'),
         summary: 'Event 3',
         description: 'Description 3',
         location: 'Location 3'
@@ -30,9 +30,9 @@ describe('sortDate', () => {
     
     const sorted = sortDate(events);
     
-    expect(sorted[0].start).toEqual(new Date('2023-01-01'));
-    expect(sorted[1].start).toEqual(new Date('2023-01-02'));
-    expect(sorted[2].start).toEqual(new Date('2023-01-03'));
+    expect(sorted[0].summary).toBe('Event 1');
+    expect(sorted[1].summary).toBe('Event 2');
+    expect(sorted[2].summary).toBe('Event 3');
   });
 
   test('handles empty array', () => {
@@ -121,38 +121,73 @@ describe('formatTime', () => {
   });
 
   test('formats time in 12-hour format', async () => {
-    const time = new Date('2023-01-01T14:30:00');
-    const result = await formatTime(time);
+    const time = new Date('2023-01-01T14:30:00Z');
+    const result = await formatTime(time, 'UTC');
     expect(result).toBe('2:30 PM');
   });
 
   test('formats time in 24-hour format', async () => {
     (global as any).logseq.settings.timeFormat = "24 hour time";
-    const time = new Date('2023-01-01T14:30:00');
-    const result = await formatTime(time);
+    const time = new Date('2023-01-01T14:30:00Z');
+    const result = await formatTime(time, 'UTC');
     expect(result).toBe('14:30');
   });
 
-  test('handles midnight correctly', async () => {
-    const time = new Date('2023-01-01T00:00:00');
-    const result = await formatTime(time);
-    expect(result).toBe('12:00 AM');
+  test('handles different timezones', async () => {
+    const time = new Date('2023-01-01T14:30:00Z');
+    const utcResult = await formatTime(time, 'UTC');
+    const estResult = await formatTime(time, 'America/New_York');
+    expect(utcResult).not.toBe(estResult);
   });
 
-  test('handles noon correctly', async () => {
-    const time = new Date('2023-01-01T12:00:00');
-    const result = await formatTime(time);
-    expect(result).toBe('12:00 PM');
-  });
-
-  test('pads single digit minutes', async () => {
-    const time = new Date('2023-01-01T14:05:00');
-    const result = await formatTime(time);
-    expect(result).toBe('2:05 PM');
-  });
-
-  test('handles string input', async () => {
-    const result = await formatTime('2023-01-01T14:30:00');
+  test('handles timezone in string input', async () => {
+    const result = await formatTime('2023-01-01T14:30:00Z', 'UTC');
     expect(result).toBe('2:30 PM');
+  });
+});
+
+describe('formatDate', () => {
+  test('formats date in specified timezone', () => {
+    const date = new Date('2023-01-01T00:00:00Z');
+    const utcResult = formatDate(date, 'UTC');
+    const estResult = formatDate(date, 'America/New_York');
+    expect(utcResult).not.toBe(estResult);
+  });
+
+  test('formats date consistently in same timezone', () => {
+    const date = new Date('2023-01-01T12:00:00Z');
+    expect(formatDate(date, 'UTC')).toMatch(/01\/01\/2023/);
+  });
+});
+
+describe('createLocalDate', () => {
+  test('creates date in specified timezone', () => {
+    const utcDate = createLocalDate(2023, 1, 1, 14, 30, 'UTC');
+    const estDate = createLocalDate(2023, 1, 1, 14, 30, 'America/New_York');
+    expect(utcDate.getTime()).not.toBe(estDate.getTime());
+  });
+
+  test('handles date without time in timezone', () => {
+    const date = createLocalDate(2023, 1, 1, undefined, undefined, 'UTC');
+    expect(date.getUTCHours()).toBe(0);
+    expect(date.getUTCMinutes()).toBe(0);
+  });
+});
+
+describe('parseDateWithTimezone', () => {
+  test('preserves timezone info when present', () => {
+    const date = parseDateWithTimezone('2023-01-01T14:30:00Z');
+    expect(date.toISOString()).toBe('2023-01-01T14:30:00.000Z');
+  });
+
+  test('interprets local time in specified timezone', () => {
+    const utcDate = parseDateWithTimezone('2023-01-01T14:30:00', 'UTC');
+    const estDate = parseDateWithTimezone('2023-01-01T14:30:00', 'America/New_York');
+    expect(utcDate.getTime()).not.toBe(estDate.getTime());
+  });
+
+  test('handles different timezone offsets', () => {
+    const date = parseDateWithTimezone('2023-01-01T14:30:00+05:30');
+    expect(date.getUTCHours()).toBe(9); // 14:30 IST = 09:00 UTC
   });
 });

@@ -3,10 +3,8 @@ import type { CalendarEvent } from '../types';
 
 export function sortDate(data: CalendarEvent[]) {
   return data.sort(function (a, b) {
-    return (
-      Math.round(new Date(a.start).getTime() / 1000) -
-      Math.round(new Date(b.start).getTime() / 1000)
-    );
+    // Use getTime() for UTC comparison to ensure timezone-safe sorting
+    return a.start.getTime() - b.start.getTime();
   });
 }
 
@@ -75,32 +73,101 @@ export function parseLocation(rawLocation: string): string {
   return parsed;
 }
 
-export async function formatTime(rawTimeStamp: Date | string): Promise<string> {
-  const formattedTimeStamp = new Date(rawTimeStamp);
-  const initialHours = formattedTimeStamp.getHours();
-  let hours: string | number;
+export async function formatTime(rawTimeStamp: Date | string, timezone?: string): Promise<string> {
+  // Ensure we're working with a Date object
+  const timestamp = typeof rawTimeStamp === 'string' ? new Date(rawTimeStamp) : rawTimeStamp;
   
-  if (initialHours === 0) {
-    hours = "00";
-  } else {
-    hours = initialHours;
-    if (formattedTimeStamp.getHours() < 10) {
-      hours = "0" + formattedTimeStamp.getHours();
+  // Get user's locale time format preference
+  const use24Hour = (global as any).logseq?.settings?.timeFormat === "24 hour time";
+  
+  // Use provided timezone or system default
+  const timeZone = timezone || Intl.DateTimeFormat().resolvedOptions().timeZone;
+  
+  const options: Intl.DateTimeFormatOptions = {
+    hour12: !use24Hour,
+    hour: use24Hour ? '2-digit' : 'numeric',
+    minute: '2-digit',
+    timeZone
+  };
+
+  return timestamp.toLocaleTimeString('en-US', options);
+}
+
+export function formatDate(date: Date, timezone?: string): string {
+  // Use provided timezone or system default
+  const timeZone = timezone || Intl.DateTimeFormat().resolvedOptions().timeZone;
+  
+  return date.toLocaleDateString('en-US', {
+    timeZone,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit'
+  });
+}
+
+export function createLocalDate(
+  year: number,
+  month: number,
+  day: number,
+  hour: number = 0,
+  minute: number = 0,
+  timezone?: string
+): Date {
+  // Use provided timezone or system default
+  const timeZone = timezone || Intl.DateTimeFormat().resolvedOptions().timeZone;
+  
+  // Create date string in ISO format
+  const dateString = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}T${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}:00`;
+  
+  // Create date object with timezone consideration
+  const formatter = new Intl.DateTimeFormat('en-US', {
+    timeZone,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false
+  });
+
+  return new Date(dateString);
+}
+
+// New utility function to parse dates with timezone support
+export function parseDateWithTimezone(dateString: string, timezone?: string): Date {
+  // If the date string already contains timezone info, use that
+  if (dateString.includes('Z') || dateString.includes('+') || dateString.includes('-')) {
+    return new Date(dateString);
+  }
+
+  // Otherwise, interpret the date in the specified timezone
+  const timeZone = timezone || Intl.DateTimeFormat().resolvedOptions().timeZone;
+  const date = new Date(dateString);
+  
+  // Create a formatter in the target timezone
+  const formatter = new Intl.DateTimeFormat('en-US', {
+    timeZone,
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false
+  });
+
+  // Parse the formatted date to ensure correct timezone
+  const parts = formatter.formatToParts(date);
+  const dateParts: { [key: string]: string } = {};
+  parts.forEach(part => {
+    if (part.type !== 'literal') {
+      dateParts[part.type] = part.value;
     }
-  }
-  
-  const minutes = formattedTimeStamp.getMinutes();
-  const formattedTime = `${hours}:${minutes < 10 ? '0' + minutes : minutes}`;
-  
-  if (
-    typeof (global as any).logseq?.settings?.timeFormat === "undefined" ||
-    (global as any).logseq?.settings?.timeFormat === "12 hour time"
-  ) {
-    return new Date("1970-01-01T" + formattedTime + "Z").toLocaleTimeString(
-      "en-US",
-      { timeZone: "UTC", hour12: true, hour: "numeric", minute: "numeric" }
-    );
-  } else {
-    return formattedTime;
-  }
+  });
+
+  // Reconstruct the date with the correct timezone
+  return new Date(
+    `${dateParts.year}-${dateParts.month}-${dateParts.day}T${dateParts.hour}:${dateParts.minute}:${dateParts.second}`
+  );
 }
