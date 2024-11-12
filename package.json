@@ -15,7 +15,7 @@
   "type": "commonjs",
   "license": "ISC",
   "dependencies": {
-    "@logseq/libs": "0.0.6",
+    "@logseq/libs": "0.0.17",
     "axios": "^0.25.0",
     "logseq-dateutils": "latest",
     "moment": "^2.29.3",
