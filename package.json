@@ -7,7 +7,8 @@
     "main": false
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "jest",
+    "test:watch": "jest --watch",
     "build": "parcel build --no-source-maps index.html --public-url ./"
   },
   "keywords": [],
@@ -31,6 +32,11 @@
     "icon": "./icon.png"
   },
   "devDependencies": {
-    "parcel": "^2.0.0"
+    "@types/jest": "^29.5.5",
+    "@types/node": "^20.8.0",
+    "jest": "^29.7.0",
+    "parcel": "^2.0.0",
+    "ts-jest": "^29.1.1",
+    "typescript": "^5.2.2"
   }
 }
