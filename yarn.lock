@@ -193,6 +193,13 @@
   dependencies:
     regenerator-runtime "^0.12.0"
 
+"@babel/runtime@^7.21.0":
+  version "7.26.0"
+  resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.26.0.tgz#8600c2f595f277c60815256418b85356a65173c1"
+  integrity sha512-FDSOghenHTiToteC/QRlv2q3DhPZ/oOXTBoirfWNx1Cx3TMVcGWQtMMmQcSvb/JjpNeGzx8Pq/b4fKEJuWm1sw==
+  dependencies:
+    regenerator-runtime "^0.14.0"
+
 "@babel/template@^7.16.7":
   version "7.16.7"
   resolved "https://registry.yarnpkg.com/@babel/template/-/template-7.16.7.tgz#8d126c8701fde4d66b264b3eba3d96f07666d155"
@@ -1866,6 +1873,13 @@ datasette@1.0.1:
     eventemitter2 "5.0.1"
     lodash "4.17.5"
 
+date-fns@^2.30.0:
+  version "2.30.0"
+  resolved "https://registry.yarnpkg.com/date-fns/-/date-fns-2.30.0.tgz#f367e644839ff57894ec6ac480de40cae4b0f4d0"
+  integrity sha512-fnULvOpxnC5/Vg3NCiWelDsLiUc9bRwAPs/+LfTLNvetFCtCTN+yQz15C/fs4AwX1R9K5GLtLfn8QW+dWisaAw==
+  dependencies:
+    "@babel/runtime" "^7.21.0"
+
 debug@2.6.9:
   version "2.6.9"
   resolved "https://registry.yarnpkg.com/debug/-/debug-2.6.9.tgz#5d128515df134ff327e90a4c93f4e077a536341f"
@@ -3166,9 +3180,11 @@ log-symbols@^4.1.0:
     is-unicode-supported "^0.1.0"
 
 logseq-dateutils@latest:
-  version "0.0.13"
-  resolved "https://registry.yarnpkg.com/logseq-dateutils/-/logseq-dateutils-0.0.13.tgz#8326f2b88ae05fc3ea1ef2f79f6352e2c21312ca"
-  integrity sha512-B5QDY2al6WnJwp5JSX9unxd2+sDGFnyAP86RlNbLXIVsFsR+cADoR3D51ynWMVbN9PQMNlysSLONkGzUXZkNzA==
+  version "2.1.2"
+  resolved "https://registry.yarnpkg.com/logseq-dateutils/-/logseq-dateutils-2.1.2.tgz#f962cf7fc726716c7123187e4009fbea3a888f26"
+  integrity sha512-N4WD6VynVC+rMQr4+BSLu/bvLhYnLc9/DBjNASIZroC0Rf7Ymwxm/G84unVxVi6iR7Y21T/4UhJEEtzfIIOQaw==
+  dependencies:
+    date-fns "^2.30.0"
 
 lower-case@^2.0.2:
   version "2.0.2"
@@ -4320,6 +4336,11 @@ regenerator-runtime@^0.13.7:
   version "0.13.9"
   resolved "https://registry.yarnpkg.com/regenerator-runtime/-/regenerator-runtime-0.13.9.tgz#8925742a98ffd90814988d7566ad30ca3b263b52"
   integrity sha512-p3VT+cOEgxFsRRA9X4lkI1E+k2/CtnKtU4gcxyaCUreilL/vqI6CdZ3wxVUx3UOUg+gnUOQQcRI7BmSI656MYA==
+
+regenerator-runtime@^0.14.0:
+  version "0.14.1"
+  resolved "https://registry.yarnpkg.com/regenerator-runtime/-/regenerator-runtime-0.14.1.tgz#356ade10263f685dda125100cd862c1db895327f"
+  integrity sha512-dYnhHh0nJoMfnkZs6GmmhFknAGRrLznOu5nc9ML+EJxGvrx6H7teuevqVqCuPcPK//3eDrrjQhehXVx9cnkGdw==
 
 requires-port@^1.0.0:
   version "1.0.0"
